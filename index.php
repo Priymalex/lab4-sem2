@@ -6,10 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
   $messages = array();
 
   if (!empty($_COOKIE['save'])) {
-    // Удаляем куку, указывая время устаревания в прошлом.
     setcookie('save', '', 100000);
-    // Если есть параметр save, то выводим сообщение пользователю.
-    $messages[] = 'Спасибо, результаты сохранены.';
+    $messages[] = '<div class='success'>Спасибо, результаты сохранены.</div>';
   }
 
     $errors = array();
@@ -73,9 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $messages[] = '<div class="error">Отметить своё согласие.</div>';
   }
 
-
-  
-
   // Складываем предыдущие значения полей в массив, если есть.
   $values = array();
   $values['FIO'] = empty($_COOKIE['FIO_value']) ? '' : $_COOKIE['FIO_value'];
@@ -83,47 +78,136 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
   $values['mail'] = empty($_COOKIE['mail_value']) ? '' : $_COOKIE['mail_value'];
   $values['date'] = empty($_COOKIE['date_value']) ? '' : $_COOKIE['date_value'];
   $values['sex'] = empty($_COOKIE['sex_value']) ? '' : $_COOKIE['sex_value'];
-  // TODO: аналогично все поля.
-
-  // Включаем содержимое файла form.php.
-  // В нем будут доступны переменные $messages, $errors и $values для вывода 
-  // сообщений, полей с ранее заполненными данными и признаками ошибок.
+  $values['language'] = empty($_COOKIE['language_value']) ? [] : $_COOKIE['language_value'];
+  $values['bio'] = empty($_COOKIE['bio_value']) ? [] : $_COOKIE['bio_value'];
+  
   include('form.php');
 }
 // Иначе, если запрос был методом POST, т.е. нужно проверить данные и сохранить их в XML-файл.
 else {
   // Проверяем ошибки.
   $errors = FALSE;
-  if (empty($_POST['fio'])) {
-    // Выдаем куку на день с флажком об ошибке в поле fio.
-    setcookie('fio_error', '1', time() + 24 * 60 * 60);
+  if (empty($_POST['FIO'])) {
+    setcookie('FIO_error', '1', time() + 24 * 60 * 60);
+    setcookie('FIO_msg', 'ФИО обязательно для заполнения.', time() + 24 * 60 * 60);
     $errors = TRUE;
   }
-  // Сохраняем ранее введенное в форму значение на месяц.
-  setcookie('fio_value', $_POST['fio'], time() + 30 * 24 * 60 * 60);
+  elseif (strlen($_POST['FIO']) > 150) {
+    setcookie('FIO_error', '1', time() + 24 * 60 * 60);
+    setcookie('FIO_msg', 'ФИО слишком длинное', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+  }  
+  elseif (!preg_match('/^[a-zA-Zа-яёА-ЯЁ ]+$/u',$_POST['FIO'])){
+    setcookie('FIO_error', '1', time() + 24 * 60 * 60);
+    setcookie('FIO_msg', 'В ФИО можно только буквы и пробелы', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+  }
+  setcookie('FIO_value', $_POST['FIO'], time() + 30 * 24 * 60 * 60);
 
-// *************
-// TODO: тут необходимо проверить правильность заполнения всех остальных полей.
-// Сохранить в Cookie признаки ошибок и значения полей.
-// *************
+  if (empty($_POST['telep'])) {
+    setcookie('telep_error', '1', time() + 24 * 60 * 60);
+    setcookie('telep_msg', 'Номер телефона обязателен для заполнения.', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  } 
+  elseif (!preg_match('/^[\+\d\s\-\(\)]+$/', $_POST['telep'])) {
+    setcookie('telep_error', '1', time() + 24 * 60 * 60);
+    setcookie('telep_msg', 'Телефон введен некорректно.', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+}  
+  elseif (strlen($_POST['telep']) < 6 || strlen($_POST['telep']) > 20) {
+    setcookie('telep_error', '1', time() + 24 * 60 * 60);
+    setcookie('telep_msg', 'Телефон должен содержать от 6 до 20 символов.', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+  }
+  setcookie('telep_value', $_POST['telep'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['mail'])) {
+    setcookie('mail_error', '1', time() + 24 * 60 * 60);
+    setcookie('mail_msg', 'Адрес электронной почты обязателен для заполнения.', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  } 
+  elseif (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
+    setcookie('mail_error', '1', time() + 24 * 60 * 60);
+    setcookie('mail_msg', 'Почта введена неправильно', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+  }
+  setcookie('mail_value', $_POST['mail'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['date'])) {
+    setcookie('date_error', '1', time() + 24 * 60 * 60);
+    setcookie('date_msg', 'Дата рождения обязательна для заполнения', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  }
+  elseif (!empty($_POST['date']) && !strtotime($_POST['date'])) {
+    setcookie('date_error', '1', time() + 24 * 60 * 60);
+    setcookie('date_msg', 'Дата рождения указана некорректно.', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+  }
+  setcookie('date_value', $_POST['date'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['sex'])) {
+    setcookie('sex_error', '1', time() + 24 * 60 * 60);
+    setcookie('sex_msg', 'Пол обязателен для заполнения', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  } elseif (!in_array($_POST['sex'], ['Male', 'Female'])) { 
+    setcookie('sex_error', '1', time() + 24 * 60 * 60);
+    setcookie('sex_msg', 'Выбран недопустимый пол.', time() + 24 * 60 * 60);
+    $errors[] = TRUE;
+}
+  setcookie('sex_value', $_POST['sex'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['language'])) {
+    setcookie('language_error', '1', time() + 24 * 60 * 60);
+    setcookie('language_msg', 'Языки обязательно надо указать', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  }
+  setcookie('language_value', $_POST['language'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['bio'])) {
+    setcookie('bio_error', '1', time() + 24 * 60 * 60);
+    setcookie('bio_msg', 'Биографию обязательно надо указать', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  }
+  setcookie('bio_value', $_POST['bio'], time() + 30 * 24 * 60 * 60);
+
+  if (empty($_POST['Agreement'])) {
+    setcookie('Agreement_error', '1', time() + 24 * 60 * 60);
+     setcookie('Agreement_msg', 'Согласие обязательно', time() + 24 * 60 * 60);
+    $errors = TRUE;
+  }
+  setcookie('Agreement_value', $_POST['Agreement'], time() + 30 * 24 * 60 * 60);
 
   if ($errors) {
-    // При наличии ошибок перезагружаем страницу и завершаем работу скрипта.
     header('Location: index.php');
     exit();
   }
   else {
     // Удаляем Cookies с признаками ошибок.
-    setcookie('fio_error', '', 100000);
-    // TODO: тут необходимо удалить остальные Cookies.
+    setcookie('FIO_error', '', 100000);
+    setcookie('FIO_msg', '', 100000);
+    setcookie('telep_error', '', 100000);
+    setcookie('telep_msg', '', 100000);
+    setcookie('mail_error', '', 100000);
+    setcookie('mail_msg', '', 100000);
+    setcookie('date_error', '', 100000);
+    setcookie('date_msg', '', 100000);
+    setcookie('sex_error', '', 100000);
+    setcookie('sex_msg', '', 100000);
+    setcookie('language_error', '', 100000);
+    setcookie('language_msg', '', 100000);
+    setcookie('bio_error', '', 100000);
+    setcookie('bio_msg', '', 100000);
+    setcookie('Agreement_error', '', 100000);
+    setcookie('Agreement_msg', '', 100000);
   }
 
   // Сохранение в БД.
   // ...
-
+  
   // Сохраняем куку с признаком успешного сохранения.
   setcookie('save', '1');
 
   // Делаем перенаправление.
   header('Location: index.php');
 }
+?>
