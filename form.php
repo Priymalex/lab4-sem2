@@ -54,7 +54,7 @@ if (!empty($messages)) {
       </select><br/>
       
       <textarea name="bio" placeholder="Биография" <?php if ($errors['bio']) {print 'class="error"';} ?>><?php print$values['bio']; ?></textarea><br/>
-      <label><input type="checkbox" name="agreement" value="on" <?php if ($values['agreement'] == 'on') echo 'checked'; ?> /> С контрактом ознакомлен(а)</label>
+      <label><input type="checkbox" name="Agreement" value="on" <?php if ($values['Agreement'] == 'on') echo 'checked'; ?> /> С контрактом ознакомлен(а)</label>
       <?php if ($errors['agreement']) {print '<span style="color:red;"> (необходимо отметить)</span>';} ?><br/>
       
       <input type="submit" value="ok" />
