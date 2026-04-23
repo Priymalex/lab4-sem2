@@ -95,12 +95,12 @@ else {
   elseif (strlen($_POST['FIO']) > 150) {
     setcookie('FIO_error', '1', time() + 24 * 60 * 60);
     setcookie('FIO_msg', 'ФИО слишком длинное', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
   }  
   elseif (!preg_match('/^[a-zA-Zа-яёА-ЯЁ ]+$/u',$_POST['FIO'])){
     setcookie('FIO_error', '1', time() + 24 * 60 * 60);
     setcookie('FIO_msg', 'В ФИО можно только буквы и пробелы', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
   }
   setcookie('FIO_value', $_POST['FIO'], time() + 30 * 24 * 60 * 60);
 
@@ -112,12 +112,12 @@ else {
   elseif (!preg_match('/^[\+\d\s\-\(\)]+$/', $_POST['telep'])) {
     setcookie('telep_error', '1', time() + 24 * 60 * 60);
     setcookie('telep_msg', 'Телефон введен некорректно.', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
 }  
   elseif (strlen($_POST['telep']) < 6 || strlen($_POST['telep']) > 20) {
     setcookie('telep_error', '1', time() + 24 * 60 * 60);
     setcookie('telep_msg', 'Телефон должен содержать от 6 до 20 символов.', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
   }
   setcookie('telep_value', $_POST['telep'], time() + 30 * 24 * 60 * 60);
 
@@ -129,7 +129,7 @@ else {
   elseif (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL)) {
     setcookie('mail_error', '1', time() + 24 * 60 * 60);
     setcookie('mail_msg', 'Почта введена неправильно', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
   }
   setcookie('mail_value', $_POST['mail'], time() + 30 * 24 * 60 * 60);
 
@@ -141,7 +141,7 @@ else {
   elseif (!empty($_POST['date']) && !strtotime($_POST['date'])) {
     setcookie('date_error', '1', time() + 24 * 60 * 60);
     setcookie('date_msg', 'Дата рождения указана некорректно.', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
   }
   setcookie('date_value', $_POST['date'], time() + 30 * 24 * 60 * 60);
 
@@ -152,7 +152,7 @@ else {
   } elseif (!in_array($_POST['sex'], ['Male', 'Female'])) { 
     setcookie('sex_error', '1', time() + 24 * 60 * 60);
     setcookie('sex_msg', 'Выбран недопустимый пол.', time() + 24 * 60 * 60);
-    $errors[] = TRUE;
+    $errors = TRUE;
 }
   setcookie('sex_value', $_POST['sex'], time() + 30 * 24 * 60 * 60);
 
