@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
   if (!empty($_COOKIE['save'])) {
     setcookie('save', '', 100000);
-    $messages[] = '<div class='success'>Спасибо, результаты сохранены.</div>';
+    $messages[] = 'Спасибо, результаты сохранены.';
   }
 
     $errors = array();
