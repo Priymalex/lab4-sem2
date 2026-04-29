@@ -4,7 +4,7 @@ header('Content-Type: text/html; charset=UTF-8');
 
 // Если запрос GET - показываем форму
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    $messages = array();
+  $messages = array();
     $errors = array();
     
     // Проверяем наличие сохранённой успешной отправки
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 }
 // Если запрос POST - проверяем и сохраняем данные
 else {
-    $errors = false;
+  $errors = false;
     
     // ========== ВАЛИДАЦИЯ ПОЛЯ ФИО ==========
     if (empty($_POST['FIO'])) {
@@ -201,7 +201,6 @@ else {
         $errors = true;
     }
     
-    // Сохраняем значения из POST в переменные
     $name = $_POST['FIO'] ?? '';
     $tel = $_POST['telep'] ?? '';
     $email = $_POST['mail'] ?? '';
@@ -209,18 +208,18 @@ else {
     $sex = $_POST['sex'] ?? '';
     $bio = $_POST['bio'] ?? '';
     $agreement = !empty($_POST['agreement']);
-    
+
     // ВСЕГДА сохраняем введённые значения (на время сессии)
-    setcookie('FIO_value', $name, 0);
-    setcookie('telep_value', $tel, 0);
-    setcookie('mail_value', $email, 0);
-    setcookie('date_value', $dateborn, 0);
-    setcookie('sex_value', $sex, 0);
+    setcookie('FIO_value', $_POST['FIO'], 0);
+    setcookie('telep_value', $_POST['telep'], 0);
+    setcookie('mail_value', $_POST['mail'], 0);
+    setcookie('date_value', $_POST['date'], 0);
+    setcookie('sex_value', $_POST['sex'], 0);
     if (!empty($_POST['language'])) {
         setcookie('language_value', implode('|', $_POST['language']), 0);
     }
-    setcookie('bio_value', $bio, 0);
-    setcookie('agreement_value', $_POST['agreement'] ?? '', 0);
+    setcookie('bio_value', $_POST['bio'], 0);
+    setcookie('agreement_value', $_POST['agreement'], 0);
     
     // Если есть ошибки - редирект на GET
     if ($errors) {
@@ -244,26 +243,25 @@ else {
     setcookie('language_msg', '', 100000);
     setcookie('bio_error', '', 100000);
     setcookie('bio_msg', '', 100000);
-    setcookie('agreement_error', '', 100000);
+     setcookie('agreement_error', '', 100000);
     setcookie('agreement_msg', '', 100000);
     
     // Сохраняем значения на 1 ГОД (как значения по умолчанию)
-    setcookie('FIO_value', $name, time() + 365 * 24 * 60 * 60);
-    setcookie('telep_value', $tel, time() + 365 * 24 * 60 * 60);
-    setcookie('mail_value', $email, time() + 365 * 24 * 60 * 60);
-    setcookie('date_value', $dateborn, time() + 365 * 24 * 60 * 60);
-    setcookie('sex_value', $sex, time() + 365 * 24 * 60 * 60);
+    setcookie('FIO_value', $_POST['FIO'], time() + 365 * 24 * 60 * 60);
+    setcookie('telep_value', $_POST['telep'], time() + 365 * 24 * 60 * 60);
+    setcookie('mail_value', $_POST['mail'], time() + 365 * 24 * 60 * 60);
+    setcookie('date_value', $_POST['date'], time() + 365 * 24 * 60 * 60);
+    setcookie('sex_value', $_POST['sex'], time() + 365 * 24 * 60 * 60);
     if (!empty($_POST['language'])) {
         setcookie('language_value', implode('|', $_POST['language']), time() + 365 * 24 * 60 * 60);
     }
-    setcookie('bio_value', $bio, time() + 365 * 24 * 60 * 60);
-    setcookie('agreement_value', $_POST['agreement'] ?? '', time() + 365 * 24 * 60 * 60);
+    setcookie('bio_value', $_POST['bio'], time() + 365 * 24 * 60 * 60);
+    setcookie('agreement_value', $_POST['agreement'], time() + 365 * 24 * 60 * 60);
     
     // Сохраняем признак успешной отправки
     setcookie('save', '1', time() + 365 * 24 * 60 * 60);
     
-    // Конфигурация базы данных (измените на свои данные)
-    try {
+     try {
         $db = new PDO(
         "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
         $config['user'], 
@@ -306,6 +304,7 @@ else {
     if ($db->inTransaction()) $db->rollBack();
     echo "Ошибка базы данных: " . $e->getMessage();
 }
+    
     // Редирект на GET
     header('Location: index.php');
     exit();
