@@ -274,7 +274,7 @@ else {
         ':bio' => $bio,
         ':agree' => $agreement ? 1 : 0
     ]);
-    
+    }
     // Редирект на GET
     header('Location: index.php');
     exit();
