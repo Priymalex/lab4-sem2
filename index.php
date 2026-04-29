@@ -264,26 +264,48 @@ else {
     
     // Конфигурация базы данных (измените на свои данные)
     try {
-        $db = new PDO("mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
+        $db = new PDO(
+        "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
         $config['user'], 
         $config['pass']
     );
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
-        $db->beginTransaction();
-        
-        $stmt = $db->prepare("INSERT INTO Frequest (name, tel, email, dateborn, sex, bio, agree) 
-                              VALUES (:name, :tel, :email, :dateborn, :sex, :bio, :agree)");
-        $stmt->execute([
-            ':name' => $name,
-            ':tel' => $tel,
-            ':email' => $email,
-            ':dateborn' => $dateborn,
-            ':sex' => $sex,
-            ':bio' => $bio,
-            ':agree' => $agreement ? 1 : 0
-        ]);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $db->beginTransaction();
+
+
+    $stmt = $db->prepare("INSERT INTO Frequest (name, tel, email, dateborn, sex, bio, agree) 
+                          VALUES (:name, :tel, :email, :dateborn, :sex, :bio, :agree)");
+    $stmt->execute([
+        ':name' => $name,
+        ':tel' => $tel,
+        ':email' => $email,
+        ':dateborn' => $dateborn,
+        ':sex' => $sex,
+        ':bio' => $bio,
+        ':agree' => $agreement ? 1 : 0
+    ]);
+
+    $requestId = $db->lastInsertId();
+
+    $getLangId = $db->prepare("SELECT language_id FROM LANGUAGES WHERE language_name = ?");
+    $insertConn = $db->prepare("INSERT INTO Connect (request_id, language_id) VALUES (?, ?)");
+
+    foreach ($languages as $langName) {
+        $getLangId->execute([$langName]);
+        $row = $getLangId->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $insertConn->execute([$requestId, $row['language_id']]);
         }
+    }
+
+    $db->commit();
+    echo "<h2>Данные успешно сохранены!</h2>";
+
+} catch (PDOException $e) {
+    if ($db->inTransaction()) $db->rollBack();
+    echo "Ошибка базы данных: " . $e->getMessage();
+}
     // Редирект на GET
     header('Location: index.php');
     exit();
