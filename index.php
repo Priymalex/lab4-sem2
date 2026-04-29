@@ -1,4 +1,5 @@
 <?php
+$config = include('db_config.php');
 header('Content-Type: text/html; charset=UTF-8');
 
 // Если запрос GET - показываем форму
@@ -200,17 +201,26 @@ else {
         $errors = true;
     }
     
+    // Сохраняем значения из POST в переменные
+    $name = $_POST['FIO'] ?? '';
+    $tel = $_POST['telep'] ?? '';
+    $email = $_POST['mail'] ?? '';
+    $dateborn = $_POST['date'] ?? '';
+    $sex = $_POST['sex'] ?? '';
+    $bio = $_POST['bio'] ?? '';
+    $agreement = !empty($_POST['agreement']);
+    
     // ВСЕГДА сохраняем введённые значения (на время сессии)
-    setcookie('FIO_value', $_POST['FIO'], 0);
-    setcookie('telep_value', $_POST['telep'], 0);
-    setcookie('mail_value', $_POST['mail'], 0);
-    setcookie('date_value', $_POST['date'], 0);
-    setcookie('sex_value', $_POST['sex'], 0);
+    setcookie('FIO_value', $name, 0);
+    setcookie('telep_value', $tel, 0);
+    setcookie('mail_value', $email, 0);
+    setcookie('date_value', $dateborn, 0);
+    setcookie('sex_value', $sex, 0);
     if (!empty($_POST['language'])) {
         setcookie('language_value', implode('|', $_POST['language']), 0);
     }
-    setcookie('bio_value', $_POST['bio'], 0);
-    setcookie('agreement_value', $_POST['agreement'], 0);
+    setcookie('bio_value', $bio, 0);
+    setcookie('agreement_value', $_POST['agreement'] ?? '', 0);
     
     // Если есть ошибки - редирект на GET
     if ($errors) {
@@ -238,43 +248,42 @@ else {
     setcookie('agreement_msg', '', 100000);
     
     // Сохраняем значения на 1 ГОД (как значения по умолчанию)
-    setcookie('FIO_value', $_POST['FIO'], time() + 365 * 24 * 60 * 60);
-    setcookie('telep_value', $_POST['telep'], time() + 365 * 24 * 60 * 60);
-    setcookie('mail_value', $_POST['mail'], time() + 365 * 24 * 60 * 60);
-    setcookie('date_value', $_POST['date'], time() + 365 * 24 * 60 * 60);
-    setcookie('sex_value', $_POST['sex'], time() + 365 * 24 * 60 * 60);
+    setcookie('FIO_value', $name, time() + 365 * 24 * 60 * 60);
+    setcookie('telep_value', $tel, time() + 365 * 24 * 60 * 60);
+    setcookie('mail_value', $email, time() + 365 * 24 * 60 * 60);
+    setcookie('date_value', $dateborn, time() + 365 * 24 * 60 * 60);
+    setcookie('sex_value', $sex, time() + 365 * 24 * 60 * 60);
     if (!empty($_POST['language'])) {
         setcookie('language_value', implode('|', $_POST['language']), time() + 365 * 24 * 60 * 60);
     }
-    setcookie('bio_value', $_POST['bio'], time() + 365 * 24 * 60 * 60);
-    setcookie('agreement_value', $_POST['agreement'], time() + 365 * 24 * 60 * 60);
+    setcookie('bio_value', $bio, time() + 365 * 24 * 60 * 60);
+    setcookie('agreement_value', $_POST['agreement'] ?? '', time() + 365 * 24 * 60 * 60);
     
     // Сохраняем признак успешной отправки
     setcookie('save', '1', time() + 365 * 24 * 60 * 60);
     
+    // Конфигурация базы данных (измените на свои данные)
     try {
-    $db = new PDO(
-        "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
+        $db = new PDO("mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
         $config['user'], 
         $config['pass']
     );
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $db->beginTransaction();
-
-
-    $stmt = $db->prepare("INSERT INTO Frequest (name, tel, email, dateborn, sex, bio, agree) 
-                          VALUES (:name, :tel, :email, :dateborn, :sex, :bio, :agree)");
-    $stmt->execute([
-        ':name' => $name,
-        ':tel' => $tel,
-        ':email' => $email,
-        ':dateborn' => $dateborn,
-        ':sex' => $sex,
-        ':bio' => $bio,
-        ':agree' => $agreement ? 1 : 0
-    ]);
-    }
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        $db->beginTransaction();
+        
+        $stmt = $db->prepare("INSERT INTO Frequest (name, tel, email, dateborn, sex, bio, agree) 
+                              VALUES (:name, :tel, :email, :dateborn, :sex, :bio, :agree)");
+        $stmt->execute([
+            ':name' => $name,
+            ':tel' => $tel,
+            ':email' => $email,
+            ':dateborn' => $dateborn,
+            ':sex' => $sex,
+            ':bio' => $bio,
+            ':agree' => $agreement ? 1 : 0
+        ]);
+        }
     // Редирект на GET
     header('Location: index.php');
     exit();
