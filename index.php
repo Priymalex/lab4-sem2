@@ -252,8 +252,28 @@ else {
     // Сохраняем признак успешной отправки
     setcookie('save', '1', time() + 365 * 24 * 60 * 60);
     
-    // Здесь можно добавить сохранение в базу данных
-    // ...
+    try {
+    $db = new PDO(
+        "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8", 
+        $config['user'], 
+        $config['pass']
+    );
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $db->beginTransaction();
+
+
+    $stmt = $db->prepare("INSERT INTO Frequest (name, tel, email, dateborn, sex, bio, agree) 
+                          VALUES (:name, :tel, :email, :dateborn, :sex, :bio, :agree)");
+    $stmt->execute([
+        ':name' => $name,
+        ':tel' => $tel,
+        ':email' => $email,
+        ':dateborn' => $dateborn,
+        ':sex' => $sex,
+        ':bio' => $bio,
+        ':agree' => $agreement ? 1 : 0
+    ]);
     
     // Редирект на GET
     header('Location: index.php');
