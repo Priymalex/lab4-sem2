@@ -207,6 +207,7 @@ else {
     $dateborn = $_POST['date'] ?? '';
     $sex = $_POST['sex'] ?? '';
     $bio = $_POST['bio'] ?? '';
+    $languages = $_POST['language'] ?? [];
     $agreement = !empty($_POST['agreement']);
 
     // ВСЕГДА сохраняем введённые значения (на время сессии)
